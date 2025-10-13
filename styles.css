@@ -30,6 +30,24 @@ body{
 .square{
     width: 70px;
     height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+.symbol{
+    font-size: 50px;
+    color: #333;
+    line-height: 1;
+    
+    text-align: center;
+}
+.plus {
+    color: #1e90ff; /* blue */
+}
+
+.minus {
+    color: #ff4444; /* red */
 }
 .white{
     background-color: #f0d9b5;
