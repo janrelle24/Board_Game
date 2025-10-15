@@ -19,6 +19,8 @@ for(let row = 0; row < 8; row++){
     for(let col = 0; col < 8; col++){
         const square = document.createElement("div");
         square.classList.add("square");
+        square.dataset.row = row;
+        square.dataset.col = col;
 
         //alternate colors
         if((row + col) % 2 === 0){
@@ -92,10 +94,20 @@ for(let i = 7; i >= 0; i--){
 
 // === Make chips clickable and movable ===
 let draggedChip = null;
+let currentPlayer = "white"; //white starts first
 
 document.addEventListener("dragstart", (e) =>{
     if(e.target.classList.contains("chip")){
-        draggedChip = e.target;
+        const chip = e.target;
+        const chipColor = chip.classList.contains("red-chip") ? "red" : "white";
+
+        //Only allow the current player's chips to move
+        if(chipColor !== currentPlayer){
+            e.preventDefault();
+            return;
+        }
+
+        draggedChip = chip;
         setTimeout(() => (draggedChip.style.opacity = "0.5"), 0);
     }
 });
@@ -103,7 +115,7 @@ document.addEventListener("dragstart", (e) =>{
 document.addEventListener("dragend", (e) =>{
     if(draggedChip){
         draggedChip.style.opacity = "1";
-        draggedChip = null
+        draggedChip = null;
     }
 });
 
@@ -113,7 +125,33 @@ board.addEventListener("dragover", (e) =>{
 
 board.addEventListener("drop", (e) =>{
     e.preventDefault();
-    const target = e.target;
+    const target = e.target.closest(".square");
+    if(!target || !target.classList.contains("white")) return; //only allow drops on white squares
+    if(target.querySelector(".chip")) return; //can't move unto another chip
+    if(!draggedChip) return; //no chip to drop
+
+    const fromSquare = draggedChip.parentElement;
+    const fromRow = parseInt(fromSquare.dataset.row);
+    const fromCol = parseInt(fromSquare.dataset.col);
+    const toRow = parseInt(target.dataset.row);
+    const toCol = parseInt(target.dataset.col);
+
+    const rowDiff = toRow - fromRow;
+    const colDiff = Math.abs(toCol - fromCol);
+
+    const chipColor = draggedChip.classList.contains("white-chip") ? "white" : "red";
+
+    //must move diagonally 1 step
+    if(colDiff === 1 && Math.abs(rowDiff) === 1){
+        //red moves downward (increasing row)
+        if(chipColor === "red" && rowDiff !== 1) return;
+        //white moves upward (decreasing row)
+        if(chipColor === "white" && rowDiff !== -1) return;
+
+        target.appendChild(draggedChip);
+        switchTurn();
+    }
+    /*
     // --- get the square element no matter what was clicked ---
     const square = target.classList.contains("square")
         ? target
@@ -126,5 +164,10 @@ board.addEventListener("drop", (e) =>{
     // --- perform drop ---
     if(draggedChip){
         square.appendChild(draggedChip);
-    }
+    }*/
 });
+
+function switchTurn(){
+    currentPlayer = currentPlayer === "white" ? "red" : "white";
+    console.log(`Now it's ${currentPlayer.toUpperCase()}'s turn`);
+}
