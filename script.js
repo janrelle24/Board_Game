@@ -110,6 +110,7 @@ document.addEventListener("dragstart", (e) =>{
     }
 
     draggedChip = chip;
+    showValidMoves(chip);
     setTimeout(() => (draggedChip.style.opacity = "0.5"), 0);
     
 });
@@ -118,6 +119,7 @@ document.addEventListener("dragend", (e) =>{
     if(draggedChip){
         draggedChip.style.opacity = "1";
         draggedChip = null;
+        clearHighlights();
     }
 });
 
@@ -154,6 +156,7 @@ board.addEventListener("drop", (e) =>{
         if(chipColor === "white" && rowDiff !== -1) return;
 
         target.appendChild(draggedChip);
+        clearHighlights();
         switchTurn();
         return;
     }
@@ -176,19 +179,19 @@ board.addEventListener("drop", (e) =>{
         //must jump over opponent's chip
         if(middleColor === chipColor) return; //can't jump over own chip
 
-        /*
-        //red must jump downward (increasing row); white must jump upward (decreasing row)
-        if(chipColor === "red" && rowDiff !== 2) return;
-        if(chipColor === "white" && rowDiff !== -2) return; */
+
 
         //remove the captured chip
         middleSquare.removeChild(middleChip);
         //move chip to target square
         target.appendChild(draggedChip);
 
+        clearHighlights();
+
         //check if the same chip can make another capture
         if(canCaptureAgain(target, chipColor)){
             activeChip = draggedChip; //set the active chip for potential multi-jump
+            showValidMoves(draggedChip);
             console.log("You can capture again!");
         }else{
             activeChip = null;
@@ -244,6 +247,68 @@ function canCaptureAgain(square, color){
         if(middleColor !== color) return true; //can't jump over own chip
     }
     return false; //no captures available
+}
+
+// === Highlighting Functions ===
+function showValidMoves(chip){
+    clearHighlights();
+
+    const color = chip.classList.contains("white-chip") ? "white" : "red";
+    const square = chip.parentElement;
+    const row = parseInt(square.dataset.row);
+    const col = parseInt(square.dataset.col);
+
+    const dirs = [
+        [-1, -1],
+        [-1, 1],
+        [1, -1],
+        [1, 1],
+    ];
+
+    for(const [dr, dc] of dirs) {
+        const newRow = row + dr;
+        const newCol = col + dc;
+        const jumpRow = row + dr * 2;
+        const jumpCol = col + dc * 2;
+
+        const moveSquare = document.querySelector(
+            `.square[data-row="${newRow}"][data-col="${newCol}"]`
+        );
+        const jumpSquare = document.querySelector(
+            `.square[data-row="${jumpRow}"][data-col="${jumpCol}"]`
+        );
+
+        //Normal move highlight
+        if(
+            moveSquare &&
+            moveSquare.classList.contains("white") &&
+            !moveSquare.querySelector(".chip") &&
+            !hasAnyCapture(color)
+        ){
+            moveSquare.classList.add("highlight-move");
+        }
+        //capture move highlight
+        if(
+            moveSquare &&
+            jumpSquare &&
+            moveSquare.querySelector(".chip") &&
+            !jumpSquare.querySelectory(".chip") &&
+            jumpSquare.classList.contains("white")
+        ){
+            const enemyChip = moveSquare.querySelector(".chip");
+            const enemyColor = enemyChip.classList.contains("white-chip") ? "white" : "red";
+
+            if(enemyColor !== color){
+                jumpSquare.classList.add("highlight-capture");
+            }
+        }
+    }
+}
+
+function clearHighlights(){
+    document
+        .querySelectorAll(".highlight-move, .highlight-capture")
+        .forEach((sq) => sq.classList.remove("highlight-move", "highlight-capture"));
 }
 
 function switchTurn(){

@@ -116,3 +116,13 @@ body{
 .chip:active{
     cursor: grabbing;
 }
+
+/* highlights */
+.highlight-move{
+    box-shadow: inset 0 0 0 4px rgba(0, 255, 0, 0.5);
+    transition: box-shadow 0.2s ease-in-out;
+}
+.highlight-capture{
+    box-shadow: inset  0 0 0 4px rgba(255, 0, 0, 0.6);
+    transition: box-shadow 0.2s ease-in-out;
+}
