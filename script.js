@@ -144,21 +144,29 @@ board.addEventListener("drop", (e) =>{
     const colDiff = toCol - fromCol;
 
     const chipColor = draggedChip.classList.contains("white-chip") ? "white" : "red";
+    const isKing = draggedChip.classList.contains("king"); 
 
     //must move diagonally 1 step
-    if(Math.abs(colDiff) === 1 && Math.abs(rowDiff) === 1){
+    if(Math.abs(rowDiff) === 1 && Math.abs(colDiff) === 1){
         //only allow if no captures are possible for this player
         if(hasAnyCapture(chipColor)) return; //must capture when possible
 
+        /*
         //red moves downward (increasing row)
         if(chipColor === "red" && rowDiff !== 1) return;
         //white moves upward (decreasing row)
-        if(chipColor === "white" && rowDiff !== -1) return;
-
-        target.appendChild(draggedChip);
-        clearHighlights();
-        switchTurn();
-        return;
+        if(chipColor === "white" && rowDiff !== -1) return;*/
+        if(
+            (chipColor === "red" && rowDiff === 1) ||
+            (chipColor === "white" && rowDiff === -1) ||
+            isKing
+        ){
+            target.appendChild(draggedChip);
+            checkKingPromotion(draggedChip, toRow);
+            clearHighlights();
+            switchTurn();
+            return;
+        } 
     }
     // === Capture move (jumping over opponent) ===
     if(Math.abs(rowDiff) === 2 && Math.abs(colDiff) === 2){
@@ -185,20 +193,32 @@ board.addEventListener("drop", (e) =>{
         middleSquare.removeChild(middleChip);
         //move chip to target square
         target.appendChild(draggedChip);
-
-        clearHighlights();
+        checkKingPromotion(draggedChip, toRow);
 
         //check if the same chip can make another capture
-        if(canCaptureAgain(target, chipColor)){
+        if(canCaptureAgain(target, chipColor, draggedChip)){
             activeChip = draggedChip; //set the active chip for potential multi-jump
             showValidMoves(draggedChip);
             console.log("You can capture again!");
         }else{
             activeChip = null;
+            clearHighlights();
             switchTurn();
         }
     }
-});
+}); 
+//king promotion
+function checkKingPromotion(chip, row){
+    const isWhite = chip.classList.contains("white-chip");
+    const isRed = chip.classList.contains("red-chip");
+
+    if((isWhite && row === 0) || (isRed && row === 7)){
+        chip.classList.add("king");
+        chip.style.border = "4px solid gold";
+        chip.style.boxShadow = "0 0 10px gold";
+        chip.innerHTML = "♕"; //crown symbol
+    }
+}
 
 // === Helper: Check if player has any capture available ===
 function hasAnyCapture(color){
@@ -207,14 +227,15 @@ function hasAnyCapture(color){
     );
     for(const chip of chips){
         const square = chip.parentElement;
-        if(canCaptureAgain(square, color)) return true;
+        if(canCaptureAgain(square, color, chip)) return true;
     }
     return false;
 }
 // === Helper: Check if a chip can capture again ===
-function canCaptureAgain(square, color){
+function canCaptureAgain(square, color, chip){
     const row = parseInt(square.dataset.row);
     const col = parseInt(square.dataset.col);
+    const isKing = chip.classList.contains("king");
     const directions = [
         [-2, -2],
         [-2, 2],
@@ -244,7 +265,16 @@ function canCaptureAgain(square, color){
         if(!middleChip) continue; //no chip to jump over
         const middleColor = middleChip.classList.contains("white-chip") ? "white" : "red";
 
-        if(middleColor !== color) return true; //can't jump over own chip
+        if(middleColor === color) continue; //can't jump over own chip
+
+        // Check direction restrictions (non-king pieces can’t go backward unless capturing)
+        if(
+            isKing ||
+            (color === "red" && dr > 0) ||
+            (color === "white" && dr < 0)   
+        ){
+            return true; //capture is possible
+        }
     }
     return false; //no captures available
 }
@@ -254,6 +284,7 @@ function showValidMoves(chip){
     clearHighlights();
 
     const color = chip.classList.contains("white-chip") ? "white" : "red";
+    const isKing = chip.classList.contains("king");
     const square = chip.parentElement;
     const row = parseInt(square.dataset.row);
     const col = parseInt(square.dataset.col);
@@ -266,16 +297,17 @@ function showValidMoves(chip){
     ];
 
     for(const [dr, dc] of dirs) {
+        /*
         const newRow = row + dr;
         const newCol = col + dc;
         const jumpRow = row + dr * 2;
-        const jumpCol = col + dc * 2;
+        const jumpCol = col + dc * 2;*/
 
         const moveSquare = document.querySelector(
-            `.square[data-row="${newRow}"][data-col="${newCol}"]`
+            `.square[data-row="${row + dr}"][data-col="${col + dc}"]`
         );
         const jumpSquare = document.querySelector(
-            `.square[data-row="${jumpRow}"][data-col="${jumpCol}"]`
+            `.square[data-row="${row + dr * 2}"][data-col="${col + dc * 2   }"]`
         );
 
         //Normal move highlight
@@ -285,14 +317,15 @@ function showValidMoves(chip){
             !moveSquare.querySelector(".chip") &&
             !hasAnyCapture(color)
         ){
-            moveSquare.classList.add("highlight-move");
+            if(isKing || (color === "red" && dr === 1) || (color === "white" && dr === -1))
+                moveSquare.classList.add("highlight-move"); 
         }
         //capture move highlight
         if(
             moveSquare &&
             jumpSquare &&
             moveSquare.querySelector(".chip") &&
-            !jumpSquare.querySelectory(".chip") &&
+            !jumpSquare.querySelector(".chip") &&
             jumpSquare.classList.contains("white")
         ){
             const enemyChip = moveSquare.querySelector(".chip");
