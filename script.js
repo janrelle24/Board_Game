@@ -150,21 +150,42 @@ board.addEventListener("drop", (e) =>{
 
         target.appendChild(draggedChip);
         switchTurn();
+        return;
     }
-    /*
-    // --- get the square element no matter what was clicked ---
-    const square = target.classList.contains("square")
-        ? target
-        : target.closest(".square");
+    // === Capture move (jumping over opponent) ===
+    if(Math.abs(rowDiff) === 2 && Math.abs(colDiff) === 2){
+        const middleRow = fromRow + rowDiff / 2 ;
+        const middleCol = fromCol + colDiff / 2;
 
-    // --- validate drop target ---
-    if(!square || !square.classList.contains("white")) return;
-    if(square.querySelector(".chip")) return;
+        const middleSquare = document.querySelector(
+            `.square[data-row="${middleRow}"][data-col="${middleCol}"]`
+        );
 
-    // --- perform drop ---
-    if(draggedChip){
-        square.appendChild(draggedChip);
-    }*/
+        if(!middleSquare) return; //no middle square found
+
+        const middleChip = middleSquare.querySelector(".chip");
+        if(!middleChip) return; //no chip to capture
+
+        const middleColor = middleChip.classList.contains("white-chip") ? "white" : "red";
+
+        //must jump over opponent's chip
+        if(middleColor === chipColor) return; //can't jump over own chip
+
+        //red must jump downward (increasing row); white must jump upward (decreasing row)
+        if(chipColor === "red" && rowDiff !== 2) return;
+        if(chipColor === "white" && rowDiff !== -2) return;
+
+        //remove the captured chip
+        middleSquare.removeChild(middleChip);
+        //move chip to target square
+        target.appendChild(draggedChip);
+
+        //check for additional captures(multi-jump)
+        const additionalCaptures = checkForAdditionalCaptures(target, chipColor);
+        if(!additionalCaptures){
+            switchTurn();
+        }  
+    }
 });
 
 function switchTurn(){
