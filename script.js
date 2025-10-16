@@ -95,21 +95,23 @@ for(let i = 7; i >= 0; i--){
 // === Make chips clickable and movable ===
 let draggedChip = null;
 let currentPlayer = "white"; //white starts first
+let activeChip = null; //for chaining the captures
 
 document.addEventListener("dragstart", (e) =>{
-    if(e.target.classList.contains("chip")){
-        const chip = e.target;
-        const chipColor = chip.classList.contains("red-chip") ? "red" : "white";
+    const chip = e.target;
+    if(!chip.classList.contains("chip")) return;
+        
+    const chipColor = chip.classList.contains("red-chip") ? "red" : "white";
 
         //Only allow the current player's chips to move
-        if(chipColor !== currentPlayer){
-            e.preventDefault();
-            return;
-        }
-
-        draggedChip = chip;
-        setTimeout(() => (draggedChip.style.opacity = "0.5"), 0);
+    if(chipColor !== currentPlayer){
+        e.preventDefault();
+        return;
     }
+
+    draggedChip = chip;
+    setTimeout(() => (draggedChip.style.opacity = "0.5"), 0);
+    
 });
 
 document.addEventListener("dragend", (e) =>{
@@ -137,12 +139,15 @@ board.addEventListener("drop", (e) =>{
     const toCol = parseInt(target.dataset.col);
 
     const rowDiff = toRow - fromRow;
-    const colDiff = Math.abs(toCol - fromCol);
+    const colDiff = toCol - fromCol;
 
     const chipColor = draggedChip.classList.contains("white-chip") ? "white" : "red";
 
     //must move diagonally 1 step
-    if(colDiff === 1 && Math.abs(rowDiff) === 1){
+    if(Math.abs(colDiff) === 1 && Math.abs(rowDiff) === 1){
+        //only allow if no captures are possible for this player
+        if(hasAnyCapture(chipColor)) return; //must capture when possible
+
         //red moves downward (increasing row)
         if(chipColor === "red" && rowDiff !== 1) return;
         //white moves upward (decreasing row)
@@ -171,22 +176,75 @@ board.addEventListener("drop", (e) =>{
         //must jump over opponent's chip
         if(middleColor === chipColor) return; //can't jump over own chip
 
+        /*
         //red must jump downward (increasing row); white must jump upward (decreasing row)
         if(chipColor === "red" && rowDiff !== 2) return;
-        if(chipColor === "white" && rowDiff !== -2) return;
+        if(chipColor === "white" && rowDiff !== -2) return; */
 
         //remove the captured chip
         middleSquare.removeChild(middleChip);
         //move chip to target square
         target.appendChild(draggedChip);
 
-        //check for additional captures(multi-jump)
-        const additionalCaptures = checkForAdditionalCaptures(target, chipColor);
-        if(!additionalCaptures){
+        //check if the same chip can make another capture
+        if(canCaptureAgain(target, chipColor)){
+            activeChip = draggedChip; //set the active chip for potential multi-jump
+            console.log("You can capture again!");
+        }else{
+            activeChip = null;
             switchTurn();
-        }  
+        }
     }
 });
+
+// === Helper: Check if player has any capture available ===
+function hasAnyCapture(color){
+    const chips = document.querySelectorAll(
+        color === "white" ? ".white-chip" : ".red-chip"
+    );
+    for(const chip of chips){
+        const square = chip.parentElement;
+        if(canCaptureAgain(square, color)) return true;
+    }
+    return false;
+}
+// === Helper: Check if a chip can capture again ===
+function canCaptureAgain(square, color){
+    const row = parseInt(square.dataset.row);
+    const col = parseInt(square.dataset.col);
+    const directions = [
+        [-2, -2],
+        [-2, 2],
+        [2, -2],
+        [2, 2],
+    ];
+
+    for(const [dr, dc] of directions){
+        const newRow = row + dr;
+        const newCol = col + dc;    
+        const middleRow = row + dr / 2;
+        const middleCol = col + dc / 2;
+
+        const target = document.querySelector(
+            `.square[data-row="${newRow}"][data-col="${newCol}"]`
+        );
+
+        const middle = document.querySelector(
+            `.square[data-row="${middleRow}"][data-col="${middleCol}"]`
+        );
+
+        if(!target || !middle) continue; //out of bounds
+        if(!target.classList.contains("white")) continue; //can only land on white squares
+        if(target.querySelector(".chip")) continue; //target square must be empty
+
+        const middleChip = middle.querySelector(".chip");
+        if(!middleChip) continue; //no chip to jump over
+        const middleColor = middleChip.classList.contains("white-chip") ? "white" : "red";
+
+        if(middleColor !== color) return true; //can't jump over own chip
+    }
+    return false; //no captures available
+}
 
 function switchTurn(){
     currentPlayer = currentPlayer === "white" ? "red" : "white";
