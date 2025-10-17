@@ -438,8 +438,58 @@ function clearHighlights(){
         .querySelectorAll(".highlight-move, .highlight-capture")
         .forEach((sq) => sq.classList.remove("highlight-move", "highlight-capture"));
 }
+function checkForWinner(){
+    const whiteChips = document.querySelectorAll(".white-chip");
+    const redChips = document.querySelectorAll(".red-chip");
+
+    // Check if one player has no pieces
+    if(whiteChips.length === 0){
+        showWinner("Red Wins!");
+        return true;
+    }
+    if(redChips.length === 0){
+        showWinner("White Wins!");
+        return true;
+    }
+
+    // Check if the current player has no moves
+    if(!hasAnyMove(currentPlayer) && !hasAnyCapture(currentPlayer)){
+        const winner = currentPlayer === "white" ? "🔴 Red" : "⚪ White";
+        showWinner(`${winner} wins!`);
+        return true;
+    }
+    return false;
+}
+function showWinner(message){
+    const modal = document.getElementById("winnerModal");
+    const winnerText = document.getElementById("winner-text");
+    if(!modal || !winnerText){
+        // fallback if modal not present
+        alert(message);
+        disableBoard();
+        return; 
+    }
+    winnerText.textContent = message;
+    modal.classList.add("show");
+    modal.style.display = "flex";
+    disableBoard();
+}
+function disableBoard(){
+    document.querySelectorAll(".chip").forEach(chip =>{
+        chip.setAttribute("draggable", false);
+    });
+}
+//restart button
+const restartBtn = document.getElementById("restartbtn");
+if(restartBtn){
+    restartBtn.addEventListener("click", () =>{
+        location.reload();  
+    });
+}
 
 function switchTurn(){
     currentPlayer = currentPlayer === "white" ? "red" : "white";
     console.log(`Now it's ${currentPlayer.toUpperCase()}'s turn`);
+    checkForWinner();
 }
+
