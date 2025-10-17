@@ -50,6 +50,12 @@ body{
 .minus {
     color: #c90808; /* red */
 }
+.multiply {
+    color: #32cd32; /* green */
+}
+.divide {
+    color: #ffa500; /* orange */
+}
 .white{
     background-color: #f0d9b5;
 }

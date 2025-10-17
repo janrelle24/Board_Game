@@ -5,14 +5,14 @@ const leftNumbers = document.querySelector(".left");
 const rightNumbers = document.querySelector(".right");
 
 const pattern = [
-    ["+", "=", "-", "=", "-", "=", "+", "="],
-    ["=", "-", "=", "+", "=", "+", "=", "-"],
-    ["-", "=", "+", "=", "+", "=", "-", "="], 
-    ["=", "+", "=", "-", "=", "-", "=", "+"],
-    ["+", "=", "-", "=", "-", "=", "+", "="],
-    ["=", "-", "=", "+", "=", "+", "=", "-"],
-    ["-", "=", "+", "=", "+", "=", "-", "="],
-    ["=", "+", "=", "-", "=", "-", "=", "+"]
+    ["×", "=", "÷", "=", "-", "=", "+", "="], //7
+    ["=", "÷", "=", "×", "=", "+", "=", "-"], //6
+    ["-", "=", "+", "=", "×", "=", "÷", "="], //5
+    ["=", "+", "=", "-", "=", "÷", "=", "×"], //4
+    ["×", "=", "÷", "=", "-", "=", "+", "-"], //3
+    ["=", "÷", "=", "×", "=", "+", "=", "-"], // 2
+    ["-", "=", "+", "=", "×", "=", "÷", "="], //1
+    ["=", "+", "=", "-", "=", "÷", "=", "×"] //0
 ];
 
 for(let row = 0; row < 8; row++){
@@ -37,7 +37,12 @@ for(let row = 0; row < 8; row++){
                 symbol.classList.add("plus");
             } else if(symbolChar === "-") {
                 symbol.classList.add("minus");
-            }else{
+            }else if(symbolChar === "×") {
+                symbol.classList.add("multiply");
+            }else if(symbolChar === "÷") {
+                symbol.classList.add("divide");
+            }
+            else{
                 symbol.classList.add("equal");
             }
             square.appendChild(symbol);
@@ -226,14 +231,20 @@ board.addEventListener("drop", (e) =>{
             r += dr;
             c += dc;
         }
+        // === If capture exists elsewhere, force capture ===//
+        if (!capturedChip && hasAnyCapture(chipColor)) return;
+
+        // === Perform capture if valid ===
         if (capturedChip){
             capturedChip.parentElement.removeChild(capturedChip); // remove captured chip
-        }else if(hasAnyCapture(chipColor)){
+        }/*else if(hasAnyCapture(chipColor)){
             return; //must capture if a capture exists elsewhere 
-        }
+        }*/
         target.appendChild(draggedChip);
         checkKingPromotion(draggedChip, toRow);
 
+        
+        // === Check for further captures (mandatory chaining) ===
         if (capturedChip && canCaptureAgain(target, chipColor, draggedChip)){
             activeChip = draggedChip;
             showValidMoves(draggedChip);
@@ -382,20 +393,7 @@ function showValidMoves(chip){
             const jumpSquare = document.querySelector(
                 `.square[data-row="${jumpRow}"][data-col="${jumpCol}"]`
             );
-            // Normal move (only if no captures)
-            if (
-                !mustCapture &&
-                moveSquare &&
-                moveSquare.classList.contains("white") &&
-                !moveSquare.querySelector(".chip")
-            ){
-                if (
-                    (color === "white" && dr === -1) ||
-                    (color === "red" && dr === 1)
-                ) {
-                    moveSquare.classList.add("highlight-move");
-                }
-            }
+            
             //capture move
             if (
                 jumpSquare &&
@@ -408,13 +406,30 @@ function showValidMoves(chip){
                 const middleColor = middleChip.classList.contains("white-chip")
                     ? "white"
                     : "red";
-
-                    if (middleColor !== color){
-                        jumpSquare.classList.add("highlight-capture");
-                    }
+                if(middleColor !== color){
+                    jumpSquare.classList.add("highlight-capture");
+                }
+            }
+            else if(!mustCapture &&
+                moveSquare &&
+                moveSquare.classList.contains("white") &&
+                !moveSquare.querySelector(".chip")
+            ){
+                if (
+                    (color === "white" && dr === -1) ||
+                    (color === "red" && dr === 1)
+                ){
+                    moveSquare.classList.add("highlight-move");
+                }
             }
         }
         
+    }
+    //if there are captures, remove normal move highlights completely
+    if(mustCapture){
+        document
+            .querySelectorAll(".highlight-move")
+            .forEach((sq) => sq.classList.remove("highlight-move"));
     }
 }
 
