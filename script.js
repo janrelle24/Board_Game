@@ -494,10 +494,20 @@ if(restartBtn){
         location.reload();  
     });
 }
+function declareWinner(color){
+    stopAllTimers(); // From timer.js
+    const winnerModal = document.getElementById("winnerModal");
+    const winnerText = document.getElementById("winner-text");
+    winnerText.textContent = `${color} Wins!`;
+    winnerModal.style.display = "flex";
+}
+window.declareWinner = declareWinner;
 
 function switchTurn(){
     currentPlayer = currentPlayer === "white" ? "red" : "white";
     console.log(`Now it's ${currentPlayer.toUpperCase()}'s turn`);
+    switchTurnTimers(currentPlayer); // Call from timer.js
     checkForWinner();
+    
 }
 

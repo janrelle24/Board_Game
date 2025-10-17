@@ -198,3 +198,52 @@ body{
         opacity: 1;
     }
 }
+
+/* Countdown Timer*/
+.time-container{
+    text-align: center;
+    background: white;
+    padding: 40px 60px;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+p{
+    color: #1e3a5f;
+    margin-bottom: 20px;
+}
+#timer{
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 25px;
+}
+/* Timer */
+.top-timers{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 80px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    background-color: #333;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    padding: 10px 0;
+    border-bottom: 3px solid #555;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    width: fit-content;
+    margin: 0 auto 15px auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+.player-timer{
+    padding: 8px 15px;
+    border-radius: 10px;
+}
+.red-timer{
+    background: #a52a2a;
+}
+.white-timer {
+    background: #e0e0e0;
+    color: #000;
+}

@@ -7,20 +7,36 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="board-container">
-        <div class="numbers top"></div>
-        <div class="numbers left"></div>
-        <div class="board" id="board"></div>
-        <div class="numbers right"></div>
-        <div class="numbers bottom"></div>
-    </div>
-    
-    <div id="winnerModal" class="modal">
-        <div class="modal-content">
-            <h2 id="winner-text"></h2>
-            <button id="restartbtn">Play Again</button>
+    <!--
+    <div class="timer-container">
+        <p>⏳ Countdown Timer</p>
+        <div id="timer">10:00</div>
+    </div>-->
+    <div class="game-container">
+        <div class="top-timers">
+            <div class="player-timer red-timer">
+                🔴 Red Timer: <span id="red-timer">10:00</span>
+            </div>
+            <div class="player-timer white-timer">
+                ⚪ White Timer: <span id="white-timer">10:00</span>
+            </div>
+        </div>
+        <div class="board-container">
+            <div class="numbers top"></div>
+            <div class="numbers left"></div>
+            <div class="board" id="board"></div>
+            <div class="numbers right"></div>
+            <div class="numbers bottom"></div>
+        </div>
+        
+        <div id="winnerModal" class="modal">
+            <div class="modal-content">
+                <h2 id="winner-text"></h2>
+                <button id="restartbtn">Play Again</button>
+            </div>
         </div>
     </div>
+    <script src="timer.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
