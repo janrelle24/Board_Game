@@ -14,6 +14,10 @@ const pattern = [
     ["-", "=", "+", "=", "×", "=", "÷", "="], //1
     ["=", "+", "=", "-", "=", "÷", "=", "×"] //0
 ];
+//const chipNumbers = [0, -1, 2, -3, 4, -5, 6, -7, 8, -9, 10, -11];
+const redNumbers = [2, -5, 8, -11, -7, 10, -3, 0, 4, -1, 6, -9];
+const whiteNumbers = [-9, 6, -1, 4, 0, -3, 10, -7, -11, 8, -5, 2];
+let numberIndex = 0;
 
 for(let row = 0; row < 8; row++){
     for(let col = 0; col < 8; col++){
@@ -59,10 +63,14 @@ for(let row = 0; row < 8; row++){
         if(row < 3 && square.classList.contains("white")){
             chip.classList.add("chip", "red-chip");
             chip.setAttribute("draggable", true);
+            chip.textContent = redNumbers[numberIndex % redNumbers.length];
+            numberIndex++;
             square.appendChild(chip);
         }else if(row > 4 && square.classList.contains("white")){
             chip.classList.add("chip", "white-chip");
             chip.setAttribute("draggable", true);
+            chip.textContent = whiteNumbers[numberIndex % whiteNumbers.length];
+            numberIndex++;
             square.appendChild(chip);
         }
 

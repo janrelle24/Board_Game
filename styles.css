@@ -110,14 +110,23 @@ body{
     transform: translate(-50%, -50%);
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
     cursor: pointer;
+    /**/
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 16px;
+    color: white;
 }
 .red-chip{
     background: radial-gradient(circle at 30% 30%, #ff6666, #cc0000);
     border: 3px solid #292828;
+    color: black;
 }
 .white-chip{
     background: radial-gradient(circle at 30% 30%, #ffffff, #cccccc);
     border: 3px solid #999;
+    color: black;
 }
 .chip:active{
     cursor: grabbing;
