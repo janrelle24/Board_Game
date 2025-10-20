@@ -5,16 +5,16 @@ const leftNumbers = document.querySelector(".left");
 const rightNumbers = document.querySelector(".right");
 
 const pattern = [
-    ["×", "=", "÷", "=", "-", "=", "+", "="], //7
-    ["=", "÷", "=", "×", "=", "+", "=", "-"], //6
-    ["-", "=", "+", "=", "×", "=", "÷", "="], //5
-    ["=", "+", "=", "-", "=", "÷", "=", "×"], //4
-    ["×", "=", "÷", "=", "-", "=", "+", "-"], //3
-    ["=", "÷", "=", "×", "=", "+", "=", "-"], // 2
-    ["-", "=", "+", "=", "×", "=", "÷", "="], //1
-    ["=", "+", "=", "-", "=", "÷", "=", "×"] //0
+    ["×", "=", "÷", "=", "-", "=", "+", "="], 
+    ["=", "÷", "=", "×", "=", "+", "=", "-"], 
+    ["-", "=", "+", "=", "×", "=", "÷", "="], 
+    ["=", "+", "=", "-", "=", "÷", "=", "×"], 
+    ["×", "=", "÷", "=", "-", "=", "+", "-"], 
+    ["=", "÷", "=", "×", "=", "+", "=", "-"], 
+    ["-", "=", "+", "=", "×", "=", "÷", "="], 
+    ["=", "+", "=", "-", "=", "÷", "=", "×"] 
 ];
-//const chipNumbers = [0, -1, 2, -3, 4, -5, 6, -7, 8, -9, 10, -11];
+
 const redNumbers = [2, -5, 8, -11, -7, 10, -3, 0, 4, -1, 6, -9];
 const whiteNumbers = [-9, 6, -1, 4, 0, -3, 10, -7, -11, 8, -5, 2];
 let numberIndex = 0;
@@ -198,11 +198,16 @@ board.addEventListener("drop", (e) =>{
         if(middleColor === chipColor) return; //can't jump over own chip
 
 
-
+        capturedValue = parseFloat(middleChip.dataset.value ?? middleChip.textContent);
         //remove the captured chip
         middleSquare.removeChild(middleChip);
+        
         //move chip to target square
         target.appendChild(draggedChip);
+        // set chip.dataset.value if missing (should exist but be safe)
+        if (!draggedChip.dataset.value) draggedChip.dataset.value = draggedChip.textContent;
+        //SCORING CALCULATION
+        if (typeof window.applyOperation === "function") window.applyOperation(draggedChip, target, capturedValue);
         checkKingPromotion(draggedChip, toRow);
 
         //check if the same chip can make another capture
@@ -244,7 +249,11 @@ board.addEventListener("drop", (e) =>{
 
         // === Perform capture if valid ===
         if (capturedChip){
+            const capturedValue = capturedChip.dataset.value;
             capturedChip.parentElement.removeChild(capturedChip); // remove captured chip
+            if (!draggedChip.dataset.value) draggedChip.dataset.value = draggedChip.textContent;
+            //SCORING CALCULATION
+            if (typeof window.applyOperation === "function") window.applyOperation(draggedChip, target, capturedValue);
         }/*else if(hasAnyCapture(chipColor)){
             return; //must capture if a capture exists elsewhere 
         }*/
@@ -451,62 +460,33 @@ function checkForWinner(){
     const redChips = document.querySelectorAll(".red-chip");
 
     // Check if one player has no pieces
-    if(whiteChips.length === 0){
-        showWinner("Red Wins!");
-        return true;
-    }
-    if(redChips.length === 0){
-        showWinner("White Wins!");
+    if (whiteChips.length === 0 || redChips.length === 0) {
+        if (typeof window.determineWinner === "function") window.determineWinner();
         return true;
     }
 
-    // Check if the current player has no moves
-    if(!hasAnyMove(currentPlayer) && !hasAnyCapture(currentPlayer)){
-        const winner = currentPlayer === "white" ? "🔴 Red" : "⚪ White";
-        showWinner(`${winner} wins!`);
-        return true;
-    }
+    
     return false;
 }
-function showWinner(message){
-    const modal = document.getElementById("winnerModal");
-    const winnerText = document.getElementById("winner-text");
-    if(!modal || !winnerText){
-        // fallback if modal not present
-        alert(message);
-        disableBoard();
-        return; 
-    }
-    winnerText.textContent = message;
-    modal.classList.add("show");
-    modal.style.display = "flex";
-    disableBoard();
-}
-function disableBoard(){
-    document.querySelectorAll(".chip").forEach(chip =>{
-        chip.setAttribute("draggable", false);
-    });
-}
+
+
 //restart button
 const restartBtn = document.getElementById("restartbtn");
 if(restartBtn){
     restartBtn.addEventListener("click", () =>{
+        if (typeof window.resetScores === "function") window.resetScores();
         location.reload();  
     });
 }
-function declareWinner(color){
-    stopAllTimers(); // From timer.js
-    const winnerModal = document.getElementById("winnerModal");
-    const winnerText = document.getElementById("winner-text");
-    winnerText.textContent = `${color} Wins!`;
-    winnerModal.style.display = "flex";
-}
-window.declareWinner = declareWinner;
+
 
 function switchTurn(){
     currentPlayer = currentPlayer === "white" ? "red" : "white";
+    
+    if (typeof window.switchTurnTimers === "function") window.switchTurnTimers(currentPlayer);
+    //switchTurnTimers(currentPlayer); // Call from timer.js
+
     console.log(`Now it's ${currentPlayer.toUpperCase()}'s turn`);
-    switchTurnTimers(currentPlayer); // Call from timer.js
     checkForWinner();
     
 }

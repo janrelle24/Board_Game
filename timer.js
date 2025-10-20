@@ -1,5 +1,5 @@
-let redTime = 600; // 10 minutes in seconds
-let whiteTime = 600; // 10 minutes in seconds
+let redTime = 300; // 5 minutes in seconds
+let whiteTime = 300; // 5 minutes in seconds
 let redInterval = null;
 let whiteInterval = null;
 

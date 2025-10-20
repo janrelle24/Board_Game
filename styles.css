@@ -247,3 +247,33 @@ p{
     background: #e0e0e0;
     color: #000;
 }
+
+/* Scoreboard */
+.scoreboard-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.scoreboard{
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    font-size: 18px;
+    font-weight: bold;
+    background: #333;
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.3);
+}
+.score{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+#last-operation{
+    font-size: 14px;
+    color: #ccc;
+    margin-top: 5px;
+}
