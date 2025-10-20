@@ -32,16 +32,22 @@ function applyOperation(chip, targetSquare, capturedChipValue){
     const operator = operatorSpan.textContent.trim();
     // ensure chip.dataset.value exists
     // Get current chip value safely
+    
     const chipValue = parseFloat(chip.dataset.value || chip.textContent);
-    const capturedValue = parseFloat(capturedChipValue);
+    const capturedValue = parseFloat(capturedChipValue); 
+    /*
+    const chipValue = parseFloat(chip.dataset.number || chip.textContent);
+    const capturedValue = parseFloat(capturedChipValue.dataset.number);*/
+
     const result = calculateCapture(chipValue, capturedChipValue, operator);
 
     if(Number.isNaN(result)) return;
     //const newValue = calculateCapture(chipValue, capturedValue, operator);
 
+    /*
     // Update chip’s value and display
     chip.dataset.value = String(result);
-    chip.textContent = String(result);
+    chip.textContent = String(result);*/
 
     // Update scores
     if (chip.classList.contains("red-chip")) {

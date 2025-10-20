@@ -198,7 +198,9 @@ board.addEventListener("drop", (e) =>{
         if(middleColor === chipColor) return; //can't jump over own chip
 
 
-        capturedValue = parseFloat(middleChip.dataset.value ?? middleChip.textContent);
+        //capturedValue = parseFloat(middleChip.dataset.value ?? middleChip.textContent);
+        const capturedValue = parseFloat(middleChip.dataset.value || middleChip.dataset.number || middleChip.textContent);
+
         //remove the captured chip
         middleSquare.removeChild(middleChip);
         
@@ -249,7 +251,8 @@ board.addEventListener("drop", (e) =>{
 
         // === Perform capture if valid ===
         if (capturedChip){
-            const capturedValue = capturedChip.dataset.value;
+            //const capturedValue = capturedChip.dataset.value;
+            const capturedValue = parseFloat(capturedChip.dataset.value || capturedChip.dataset.number || capturedChip.textContent);
             capturedChip.parentElement.removeChild(capturedChip); // remove captured chip
             if (!draggedChip.dataset.value) draggedChip.dataset.value = draggedChip.textContent;
             //SCORING CALCULATION
@@ -278,10 +281,28 @@ function checkKingPromotion(chip, row){
     const isRed = chip.classList.contains("red-chip");
 
     if((isWhite && row === 0) || (isRed && row === 7)){
-        chip.classList.add("king");
-        chip.style.border = "4px solid gold";
-        chip.style.boxShadow = "0 0 10px gold";
-        chip.innerHTML = "♕"; //crown symbol
+        //avoid duplicate king promotion
+        if(!chip.classList.contains("king")){
+            chip.classList.add("king");
+            /*
+            // Keep the number
+            const chipNumber = chip.dataset.number || chip.textContent.trim() || 0;*/
+            // Preserve numeric value
+            const chipNumber = chip.dataset.number || chip.dataset.value || chip.textContent.trim() || 0;
+            chip.dataset.number = chipNumber;
+            chip.dataset.value = chipNumber; // ✅ Important for scoring.js
+
+            // Build chip layout: crown above number
+            chip.innerHTML = `
+                <div class="king-symbol">♕</div>
+                <div class="chip-number">${chipNumber}</div>
+            `;
+            // Preserve the number in the dataset so scoring still works later
+            //chip.dataset.number = chipNumber;
+
+            chip.style.border = "4px solid gold";
+            chip.style.boxShadow = "0 0 10px gold";
+        }
     }
 }
 

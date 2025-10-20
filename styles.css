@@ -105,6 +105,8 @@ body{
     height: 50px;
     border-radius: 50%;
     position: absolute;
+    flex-direction: column; /* Stack crown and number vertically */
+    /*position: relative;*/
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -117,6 +119,10 @@ body{
     font-weight: bold;
     font-size: 16px;
     color: white;
+}
+.chip-number {
+    font-size: 16px;
+    z-index: 1;
 }
 .red-chip{
     background: radial-gradient(circle at 30% 30%, #ff6666, #cc0000);
@@ -131,9 +137,12 @@ body{
 .chip:active{
     cursor: grabbing;
 }
-.king{
-    border: 3px solid gold;
-    box-shadow: 0 0 10px gold;
+.king-symbol{
+    position: relative;
+    font-size: 18px;
+    color: gold;
+    line-height: 1;
+    margin-bottom: -2px;
 }
 
 /* highlights */
