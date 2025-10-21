@@ -1,5 +1,5 @@
-let redTime = 300; // 5 minutes in seconds
-let whiteTime = 300; // 5 minutes in seconds
+let redTime = 60; // 5 minutes in seconds //300
+let whiteTime = 60; // 5 minutes in seconds //300
 let redInterval = null;
 let whiteInterval = null;
 
@@ -33,7 +33,10 @@ function startRedTimer(){
         updateTimerDisplay();
         if(redTime <= 0){
             clearInterval(redInterval);
-            if (window.declareWinner) window.declareWinner("⚪ White (Time Out)");
+            //if (window.declareWinner) window.declareWinner("⚪ White (Time Out)");
+            //endGame("⚪ White (Time Out)");
+            stopAllTimers();
+            handleTimeout();
         }
     }, 1000);
 }
@@ -50,7 +53,10 @@ function startWhiteTimer(){
         updateTimerDisplay();
         if(whiteTime <= 0){
             clearInterval(whiteInterval);
-            if (window.declareWinner) window.declareWinner("🔴 Red (Time Out)");
+            //if (window.declareWinner) window.declareWinner("🔴 Red (Time Out)");
+            //endGame("🔴 Red (Time Out)");
+            stopAllTimers();
+            handleTimeOut();
         }
     }, 1000);
 }
@@ -61,6 +67,28 @@ function switchTurnTimers(newPlayer){
     }
     else{
         startRedTimer();
+    }
+}
+
+function handleTimeout(){
+    // Stop all activity
+    stopAllTimers();
+    document.querySelectorAll(".chip").forEach(chip =>{
+        chip.setAttribute("draggable", false);
+    });
+    // Determine winner by score (uses determineWinner() from score.js)
+    if (typeof window.determineWinner === "function") {
+        window.determineWinner(); 
+    }
+    // Add “Time’s Up!” text to the modal
+    const text = document.getElementById("winner-text");
+    if (text) {
+        text.textContent = `⏰ Time's up! ` + text.textContent;
+    }
+    const modal = document.getElementById("winnerModal");
+    if (modal) {
+        modal.style.display = "flex";
+        modal.classList.add("show");
     }
 }
 

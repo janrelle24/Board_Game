@@ -44,11 +44,7 @@ function applyOperation(chip, targetSquare, capturedChipValue){
     if(Number.isNaN(result)) return;
     //const newValue = calculateCapture(chipValue, capturedValue, operator);
 
-    /*
-    // Update chip’s value and display
-    chip.dataset.value = String(result);
-    chip.textContent = String(result);*/
-
+    
     // Update scores
     if (chip.classList.contains("red-chip")) {
         redScore += result;
