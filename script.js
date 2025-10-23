@@ -235,6 +235,8 @@ board.addEventListener("drop", (e) =>{
         
         if(operatorSymbol === "÷" && capturedValue === 0){
             alert("❌ Illegal move! Cannot divide by zero.");
+                return 0;
+            /*
             if(chipValue / capturedValue){
                 return 0;
             }
@@ -269,7 +271,7 @@ board.addEventListener("drop", (e) =>{
 
             // stop any further capture logic
             resetDragState();
-            return;*/
+            return 0;*/
         }
         //SCORING CALCULATION
         if (typeof window.applyOperation === "function") window.applyOperation(draggedChip, target, capturedValue);
@@ -321,10 +323,11 @@ board.addEventListener("drop", (e) =>{
             // === Check for illegal divide by zero ===
             if(operatorSymbol === "÷" && capturedValue === 0){
                 alert("❌ Illegal move! Cannot divide by zero.");
-                
+                return 0;
+                /*
                 if(chipValue / capturedValue){
                     return 0;
-                }
+                }*/
                 /*
                 if(fromSquare && draggedChip && !fromSquare.querySelector(".chip")){
                     fromSquare.appendChild(draggedChip);

@@ -6,25 +6,27 @@ let whiteScore = 0;
 function updateScoreboard(){
     const redEl = document.getElementById("red-score");
     const whiteEl = document.getElementById("white-score");
-    if (redEl) redEl.textContent = `${redScore.toFixed(2)} pts`;
-    if (whiteEl) whiteEl.textContent = `${whiteScore.toFixed(2)} pts`;
+    if (redEl) redEl.textContent = `${redScore.toFixed()} pts`;
+    if (whiteEl) whiteEl.textContent = `${whiteScore.toFixed()} pts`;
 }
 //Perform Calculation Based on Operator
 function calculateCapture(chipValue, capturedValue, operator){
     chipValue = parseFloat(chipValue);
     capturedValue = parseFloat(capturedValue);
 
+    if (Number.isNaN(chipValue) || Number.isNaN(capturedValue)) return NaN;
+
     switch (operator) {
         case '+': return chipValue + capturedValue;
         case '-': return chipValue - capturedValue;
         case '×': return chipValue * capturedValue;
         case '÷':
-        case '/': return capturedValue !== 0 ? chipValue / capturedValue : chipValue;
-        default: return chipValue;
+        case '/': return capturedValue !== 0 ? chipValue / capturedValue : NaN;
+        default: return NaN;
     }
 }
 //Apply Operation When Landing
-function applyOperation(chip, targetSquare, capturedChipValue){
+function applyOperation(chip, targetSquare, capturedChipValue, capturedChip){
     const operatorSpan = targetSquare.querySelector(".symbol");
 
     if (!operatorSpan) return;
@@ -34,22 +36,37 @@ function applyOperation(chip, targetSquare, capturedChipValue){
     const chipValue = parseFloat(chip.dataset.value || chip.textContent);
     const capturedValue = parseFloat(capturedChipValue); 
     
+    if(Number.isNaN(chipValue) || Number.isNaN(capturedValue)) return;
 
-    const result = calculateCapture(chipValue, capturedChipValue, operator);
+    const baseResult = calculateCapture(chipValue, capturedValue, operator);
+    if (Number.isNaN(baseResult)) return;
+    //const result = calculateCapture(chipValue, capturedChipValue, operator);
 
-    if(Number.isNaN(result)) return;
+    //if(Number.isNaN(result)) return;
+
+    // king captures normal chips it double the score
+    // Determine if a King captured a normal chip
+    const isKing = chip.classList.contains("king");
+    const capturedIsKing = capturedChip?.classList.contains("king");
+    const isKingBonus = isKing && !capturedIsKing;
+
+    const finalResult = isKingBonus ? baseResult * 2 : baseResult;
 
     // Update scores
     if (chip.classList.contains("red-chip")) {
-        redScore += result;
+        redScore += finalResult;
     } else {
-        whiteScore += result;
+        whiteScore += finalResult;
     }
 
     // Display last operation
     
     const opEl = document.getElementById("last-operation");
-    if (opEl) opEl.textContent = `${chipValue} ${operator} ${capturedChipValue} = ${result}`;
+    if (opEl) {
+        opEl.textContent = `${chipValue} ${operator} ${capturedValue} = ${baseResult}`+
+            (isKingBonus ? ` x2 King Bonus → ${finalResult}` : "");
+        }
+    
 
     updateScoreboard();
 }
@@ -90,6 +107,7 @@ function determineWinner(){
         modal.classList.add("show");
     }
     disableBoard();
+    if (typeof stopAllTimers === "function") stopAllTimers();
 }
 function disableBoard(){
     document.querySelectorAll(".chip").forEach(chip =>{
