@@ -182,7 +182,59 @@ body{
 .modal-content h2{
     font-size: 2rem;
     margin-bottom: 1rem;
+    color: #333;
 }
+.modal-content p{
+    font-size: 16px;
+    margin-bottom: 20px;
+    color: #555;
+}
+/*start modal*/
+.startmodal{
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+.startModal-content{
+    background: #fff;
+    padding: 30px 50px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+    animation: fadeIn 0.3s ease-in-out;
+}
+.startModal-content h2{
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #333;
+}
+.startModal-content p{
+    font-size: 16px;
+    margin-bottom: 20px;
+    color: #555;
+}
+#startbtn {
+    background-color: #28a745;
+    color: white;
+    font-size: 18px;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+#startbtn:hover {
+    background-color: #218838;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+/*end start modal*/
 .modal-content button{
     background-color: #333;
     color: white;

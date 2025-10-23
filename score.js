@@ -1,15 +1,15 @@
 let redScore = 0;
 let whiteScore = 0;
-//let lastCaptureValue = 0;
 
-// 🧾 Update scoreboard UI
+
+
 function updateScoreboard(){
     const redEl = document.getElementById("red-score");
     const whiteEl = document.getElementById("white-score");
     if (redEl) redEl.textContent = `${redScore.toFixed(2)} pts`;
     if (whiteEl) whiteEl.textContent = `${whiteScore.toFixed(2)} pts`;
 }
-// ⚙️  Perform Calculation Based on Operator
+//Perform Calculation Based on Operator
 function calculateCapture(chipValue, capturedValue, operator){
     chipValue = parseFloat(chipValue);
     capturedValue = parseFloat(capturedValue);
@@ -30,21 +30,15 @@ function applyOperation(chip, targetSquare, capturedChipValue){
     if (!operatorSpan) return;
 
     const operator = operatorSpan.textContent.trim();
-    // ensure chip.dataset.value exists
-    // Get current chip value safely
-    
+
     const chipValue = parseFloat(chip.dataset.value || chip.textContent);
     const capturedValue = parseFloat(capturedChipValue); 
-    /*
-    const chipValue = parseFloat(chip.dataset.number || chip.textContent);
-    const capturedValue = parseFloat(capturedChipValue.dataset.number);*/
+    
 
     const result = calculateCapture(chipValue, capturedChipValue, operator);
 
     if(Number.isNaN(result)) return;
-    //const newValue = calculateCapture(chipValue, capturedValue, operator);
 
-    
     // Update scores
     if (chip.classList.contains("red-chip")) {
         redScore += result;
@@ -62,7 +56,7 @@ function applyOperation(chip, targetSquare, capturedChipValue){
 
     
 
-// 🧠 Reset scores when restarting
+// Reset scores when restarting
 function resetScores(){
     redScore = 0;
     whiteScore = 0;
@@ -73,7 +67,7 @@ function resetScores(){
     
 }
 
-// 🏁 Determine winner at the end
+//  Determine winner at the end
 function determineWinner(){
     let resultText = "";
 

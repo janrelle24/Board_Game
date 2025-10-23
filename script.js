@@ -26,17 +26,17 @@ for(let row = 0; row < 8; row++){
         square.dataset.row = row;
         square.dataset.col = col;
 
-        //alternate colors
+        
         if((row + col) % 2 === 0){
             square.classList.add("white");
 
-            //add symbols for white squares
+            
             const symbol = document.createElement("span");
             const symbolChar = pattern[row][col];
             symbol.textContent = symbolChar;
             symbol.classList.add("symbol");
 
-            // Optional: color them differently
+            
             if (symbolChar === "+") {
                 symbol.classList.add("plus");
             } else if(symbolChar === "-") {
@@ -104,11 +104,32 @@ for(let i = 7; i >= 0; i--){
     leftNumbers.appendChild(leftNum);
     rightNumbers.appendChild(rightNum);
 }
+/*start modal functionality*/ 
+document.addEventListener("DOMContentLoaded", () =>{
+    const startModal = document.getElementById("startmodal");
+    const startBtn = document.getElementById("startbtn");
+
+    startModal.style.display = "flex";
+    const gameContainer = document.querySelector(".game-container");
+    gameContainer.style.pointerEvents = "none";
+    gameContainer.style.opacity = "0.5";
+
+    if(typeof stopAllTimers === "function") stopAllTimers();
+
+    startBtn.addEventListener("click", ()=>{
+        startModal.style.display = "none";
+
+        gameContainer.style.pointerEvents = "auto";
+        gameContainer.style.opacity = "1";
+
+        if(typeof startWhiteTimer === "function") startWhiteTimer();
+    });
+});
 
 // === Make chips clickable and movable ===
 let draggedChip = null;
-let currentPlayer = "white"; //white starts first
-let activeChip = null; //for chaining the captures
+let currentPlayer = "white"; 
+let activeChip = null; 
 
 document.addEventListener("dragstart", (e) =>{
     const chip = e.target;
@@ -137,15 +158,15 @@ document.addEventListener("dragend", (e) =>{
 });
 
 board.addEventListener("dragover", (e) =>{
-    e.preventDefault(); //allow dropping
+    e.preventDefault(); 
 });
 
 board.addEventListener("drop", (e) =>{
     e.preventDefault();
     const target = e.target.closest(".square");
-    if(!target || !target.classList.contains("white")) return; //only allow drops on white squares
-    if(target.querySelector(".chip")) return; //can't move unto another chip
-    if(!draggedChip) return; //no chip to drop
+    if(!target || !target.classList.contains("white")) return; 
+    if(target.querySelector(".chip")) return; 
+    if(!draggedChip) return; 
 
     const fromSquare = draggedChip.parentElement;
     const fromRow = parseInt(fromSquare.dataset.row);
@@ -161,8 +182,8 @@ board.addEventListener("drop", (e) =>{
 
     //must move diagonally 1 step
     if(!isKing && Math.abs(rowDiff) === 1 && Math.abs(colDiff) === 1){
-        //only allow if no captures are possible for this player
-        if(hasAnyCapture(chipColor)) return; //must capture when possible
+        
+        if(hasAnyCapture(chipColor)) return; 
 
 
         if(
@@ -185,38 +206,80 @@ board.addEventListener("drop", (e) =>{
         const middleSquare = document.querySelector(
             `.square[data-row="${middleRow}"][data-col="${middleCol}"]`
         );
-        /**/ 
+        
 
         const middleChip = middleSquare.querySelector(".chip");
-        //if(!middleSquare) return; //no middle square found
+        
 
-        if(!middleChip) return; //no chip to capture
+        if(!middleChip) return; 
 
         const middleColor = middleChip.classList.contains("white-chip") ? "white" : "red";
 
-        //must jump over opponent's chip
-        if(middleColor === chipColor) return; //can't jump over own chip
+        
+        if(middleColor === chipColor) return; 
 
 
-        //capturedValue = parseFloat(middleChip.dataset.value ?? middleChip.textContent);
+        
         const capturedValue = parseFloat(middleChip.dataset.value || middleChip.dataset.number || middleChip.textContent);
 
-        //remove the captured chip
+        
         middleSquare.removeChild(middleChip);
         
-        //move chip to target square
+        
         target.appendChild(draggedChip);
-        // set chip.dataset.value if missing (should exist but be safe)
+        
         if (!draggedChip.dataset.value) draggedChip.dataset.value = draggedChip.textContent;
+        
+        const operatorSpan = target.querySelector(".symbol");
+        const operatorSymbol = operatorSpan ? operatorSpan.textContent.trim() : null;
+        
+        if(operatorSymbol === "÷" && capturedValue === 0){
+            alert("❌ Illegal move! Cannot divide by zero.");
+            if(chipValue / capturedValue){
+                return 0;
+            }
+            /*
+            // === Move chip back to original square ===
+            if (fromSquare && draggedChip && !fromSquare.querySelector(".chip")) {
+                fromSquare.appendChild(draggedChip);
+            }
+
+            // === Restore captured chip if it was taken visually ===
+            if (middleSquare && middleChip && !middleSquare.querySelector(".chip")) {
+                middleSquare.appendChild(middleChip);
+            }
+
+            // === Fully reset drag & capture state ===
+            draggedChip = null;
+            activeChip = null;
+
+            // re-enable all chips for the current player
+            document.querySelectorAll(`.${currentPlayer}-chip`).forEach(chip => {
+                chip.setAttribute("draggable", true);
+                chip.style.opacity = "1";
+            });
+
+            // clear board highlights (valid moves etc.)
+            clearHighlights();
+
+            // === short delay to let browser reset drag events ===
+            setTimeout(() => {
+                board.style.pointerEvents = "auto";
+            }, 150);
+
+            // stop any further capture logic
+            resetDragState();
+            return;*/
+        }
         //SCORING CALCULATION
         if (typeof window.applyOperation === "function") window.applyOperation(draggedChip, target, capturedValue);
         checkKingPromotion(draggedChip, toRow);
 
         //check if the same chip can make another capture
         if(canCaptureAgain(target, chipColor, draggedChip)){
-            activeChip = draggedChip; //set the active chip for potential multi-jump
+            activeChip = draggedChip; 
             showValidMoves(draggedChip);
-            //console.log("You can capture again!");
+            
         }else{
             activeChip = null;
             clearHighlights();
@@ -239,8 +302,8 @@ board.addEventListener("drop", (e) =>{
             const chipHere = square.querySelector(".chip");
             if (chipHere){
                 const colorHere = chipHere.classList.contains("white-chip") ? "white" : "red";
-                if (colorHere === chipColor) return; // blocked by own piece
-                if (capturedChip) return; // can’t jump over 2+ pieces
+                if (colorHere === chipColor) return; 
+                if (capturedChip) return; 
                 capturedChip = chipHere;
             }
             r += dr;
@@ -251,15 +314,52 @@ board.addEventListener("drop", (e) =>{
 
         // === Perform capture if valid ===
         if (capturedChip){
-            //const capturedValue = capturedChip.dataset.value;
+            
             const capturedValue = parseFloat(capturedChip.dataset.value || capturedChip.dataset.number || capturedChip.textContent);
-            capturedChip.parentElement.removeChild(capturedChip); // remove captured chip
+            const operatorSpan = target.querySelector(".symbol");
+            const operatorSymbol = operatorSpan ? operatorSpan.textContent.trim() : null;
+            // === Check for illegal divide by zero ===
+            if(operatorSymbol === "÷" && capturedValue === 0){
+                alert("❌ Illegal move! Cannot divide by zero.");
+                
+                if(chipValue / capturedValue){
+                    return 0;
+                }
+                /*
+                if(fromSquare && draggedChip && !fromSquare.querySelector(".chip")){
+                    fromSquare.appendChild(draggedChip);
+                }
+                if(middleChip && middleChip && !middleSquare.querySelector(".chip")){
+                    middleSquare.appendChild(middleChip);
+                }
+                draggedChip = null;
+                activeChip = null;
+                selectedChip = null;
+                validMoves = [];
+                isCapturing = false;
+                pendingCapture = false;
+    
+                clearHighlights();
+    
+                document.querySelectorAll(`.${currentPlayer}-chip`).forEach(chip => {
+                    chip.setAttribute("draggable", true);
+                    chip.style.opacity = "1";
+                });
+    
+                const board = document.getElementById("board");
+                board.style.pointerEvents = "none";
+                setTimeout(() => {
+                    board.style.pointerEvents = "auto";
+                }, 100);
+
+                return;*/
+            }
+
+            capturedChip.parentElement.removeChild(capturedChip); 
             if (!draggedChip.dataset.value) draggedChip.dataset.value = draggedChip.textContent;
             //SCORING CALCULATION
             if (typeof window.applyOperation === "function") window.applyOperation(draggedChip, target, capturedValue);
-        }/*else if(hasAnyCapture(chipColor)){
-            return; //must capture if a capture exists elsewhere 
-        }*/
+        }
         target.appendChild(draggedChip);
         checkKingPromotion(draggedChip, toRow);
 
@@ -275,6 +375,15 @@ board.addEventListener("drop", (e) =>{
         }
     }
 }); 
+function resetDragState() {
+    draggedChip = null;
+    activeChip = null;
+    document.querySelectorAll(".chip").forEach(chip => {
+        chip.setAttribute("draggable", true);
+        chip.style.opacity = "1";
+    });
+    clearHighlights();
+}
 //king promotion
 function checkKingPromotion(chip, row){
     const isWhite = chip.classList.contains("white-chip");
@@ -284,21 +393,17 @@ function checkKingPromotion(chip, row){
         //avoid duplicate king promotion
         if(!chip.classList.contains("king")){
             chip.classList.add("king");
-            /*
-            // Keep the number
-            const chipNumber = chip.dataset.number || chip.textContent.trim() || 0;*/
-            // Preserve numeric value
+            
             const chipNumber = chip.dataset.number || chip.dataset.value || chip.textContent.trim() || 0;
             chip.dataset.number = chipNumber;
-            chip.dataset.value = chipNumber; // ✅ Important for scoring.js
+            chip.dataset.value = chipNumber; 
 
-            // Build chip layout: crown above number
+            
             chip.innerHTML = `
                 <div class="king-symbol">♕</div>
                 <div class="chip-number">${chipNumber}</div>
             `;
-            // Preserve the number in the dataset so scoring still works later
-            //chip.dataset.number = chipNumber;
+            
 
             chip.style.border = "4px solid gold";
             chip.style.boxShadow = "0 0 10px gold";
@@ -358,7 +463,7 @@ function canCaptureAgain(square, color, chip){
             c += dc;
         }
     }
-    return false; //no captures available
+    return false; 
 }
 
 // === Highlighting Functions === // === King-aware highlighting (can move/capture farther) ===
@@ -399,13 +504,13 @@ function showValidMoves(chip){
                 if (chipAtTarget) {
                     const targetColor = chipAtTarget.classList.contains("white-chip") ? "white" : "red";
             
-                    if (targetColor === color) break; // blocked by own piece
+                    if (targetColor === color) break; 
             
-                    if (enemyFound) break; // can only capture one at a time
+                    if (enemyFound) break; 
                     enemyFound = true;
                 }else{
                     if (enemyFound) {
-                        // landing spot after a jump
+                        
                         target.classList.add("highlight-capture");
                         
                     }else if(!mustCapture){
@@ -505,7 +610,7 @@ function switchTurn(){
     currentPlayer = currentPlayer === "white" ? "red" : "white";
     
     if (typeof window.switchTurnTimers === "function") window.switchTurnTimers(currentPlayer);
-    //switchTurnTimers(currentPlayer); // Call from timer.js
+
 
     console.log(`Now it's ${currentPlayer.toUpperCase()}'s turn`);
     checkForWinner();

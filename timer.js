@@ -1,5 +1,5 @@
-let redTime = 60; // 5 minutes in seconds //300
-let whiteTime = 60; // 5 minutes in seconds //300
+let redTime = 300; // 5 minutes in seconds //300
+let whiteTime = 300; // 5 minutes in seconds //300
 let redInterval = null;
 let whiteInterval = null;
 
@@ -33,8 +33,7 @@ function startRedTimer(){
         updateTimerDisplay();
         if(redTime <= 0){
             clearInterval(redInterval);
-            //if (window.declareWinner) window.declareWinner("⚪ White (Time Out)");
-            //endGame("⚪ White (Time Out)");
+            
             stopAllTimers();
             handleTimeout();
         }
@@ -53,10 +52,9 @@ function startWhiteTimer(){
         updateTimerDisplay();
         if(whiteTime <= 0){
             clearInterval(whiteInterval);
-            //if (window.declareWinner) window.declareWinner("🔴 Red (Time Out)");
-            //endGame("🔴 Red (Time Out)");
+            
             stopAllTimers();
-            handleTimeOut();
+            handleTimeout();
         }
     }, 1000);
 }
@@ -71,16 +69,16 @@ function switchTurnTimers(newPlayer){
 }
 
 function handleTimeout(){
-    // Stop all activity
+    
     stopAllTimers();
     document.querySelectorAll(".chip").forEach(chip =>{
         chip.setAttribute("draggable", false);
     });
-    // Determine winner by score (uses determineWinner() from score.js)
+    
     if (typeof window.determineWinner === "function") {
         window.determineWinner(); 
     }
-    // Add “Time’s Up!” text to the modal
+    
     const text = document.getElementById("winner-text");
     if (text) {
         text.textContent = `⏰ Time's up! ` + text.textContent;
@@ -99,12 +97,15 @@ function stopAllTimers(){
     whiteTimerDisplay.classList.remove("active");
 }
 
-// Start white’s timer first
+
 updateTimerDisplay();
-startWhiteTimer();
+stopAllTimers();
+//startWhiteTimer();
 
 // Make available to other scripts
 window.switchTurnTimers = switchTurnTimers;
 window.stopAllTimers = stopAllTimers;
+window.startWhiteTimer = startWhiteTimer;
+window.startRedTimer = startRedTimer;
 
 
