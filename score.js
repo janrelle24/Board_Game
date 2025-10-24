@@ -45,9 +45,15 @@ function applyOperation(chip, targetSquare, capturedChipValue, capturedChip){
     
     const capturingIsKing = chip.classList.contains("king");
     const capturedIsKing = capturedChip && capturedChip.classList && capturedChip.classList.contains("king");
-    const isDoubleScore = capturingIsKing || capturedIsKing;
-
-    const finalResult = isDoubleScore ? baseResult * 2 : baseResult;
+    
+    let multiplier = 1;
+    if(capturingIsKing && capturedIsKing){
+        multiplier = 4;
+    }
+    else if(capturingIsKing || capturedIsKing){
+        multiplier = 2;
+    }
+    const finalResult = baseResult * multiplier;
 
     // Update scores
     if (chip.classList.contains("red-chip")) {
@@ -60,11 +66,13 @@ function applyOperation(chip, targetSquare, capturedChipValue, capturedChip){
     
     const opEl = document.getElementById("last-operation");
     if (opEl) {
-        opEl.textContent = `${chipValue} ${operator} ${capturedValue} = ${baseResult}`+
-            (isDoubleScore ? ` King Bonus x2 → ${finalResult}` : "");
-        }
-    
+        let bonusText = "";
+        if(multiplier === 2) bonusText = "King Bonus x2";
+        else if(multiplier === 4) bonusText = "King Bonus x4";
 
+        opEl.textContent = `${chipValue} ${operator} ${capturedValue} = ${baseResult}${bonusText} → ${finalResult}`;
+    
+    }
     updateScoreboard();
 }
 
