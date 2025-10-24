@@ -274,7 +274,11 @@ board.addEventListener("drop", (e) =>{
             return 0;*/
         }
         //SCORING CALCULATION
-        if (typeof window.applyOperation === "function") window.applyOperation(draggedChip, target, capturedValue);
+        
+        if (typeof window.applyOperation === "function") {
+            window.applyOperation(draggedChip, target, capturedValue, middleChip || capturedChip);
+        }
+        
         checkKingPromotion(draggedChip, toRow);
 
         //check if the same chip can make another capture
@@ -361,7 +365,11 @@ board.addEventListener("drop", (e) =>{
             capturedChip.parentElement.removeChild(capturedChip); 
             if (!draggedChip.dataset.value) draggedChip.dataset.value = draggedChip.textContent;
             //SCORING CALCULATION
-            if (typeof window.applyOperation === "function") window.applyOperation(draggedChip, target, capturedValue);
+            
+            if (typeof window.applyOperation === "function") {
+                window.applyOperation(draggedChip, target, capturedValue, capturedChip);
+            }
+            
         }
         target.appendChild(draggedChip);
         checkKingPromotion(draggedChip, toRow);

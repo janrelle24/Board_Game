@@ -1,8 +1,6 @@
 let redScore = 0;
 let whiteScore = 0;
 
-
-
 function updateScoreboard(){
     const redEl = document.getElementById("red-score");
     const whiteEl = document.getElementById("white-score");
@@ -33,24 +31,23 @@ function applyOperation(chip, targetSquare, capturedChipValue, capturedChip){
 
     const operator = operatorSpan.textContent.trim();
 
-    const chipValue = parseFloat(chip.dataset.value || chip.textContent);
+    const chipValue = parseFloat(chip.dataset.value ?? chip.textContent);
     const capturedValue = parseFloat(capturedChipValue); 
     
     if(Number.isNaN(chipValue) || Number.isNaN(capturedValue)) return;
 
     const baseResult = calculateCapture(chipValue, capturedValue, operator);
     if (Number.isNaN(baseResult)) return;
-    //const result = calculateCapture(chipValue, capturedChipValue, operator);
-
-    //if(Number.isNaN(result)) return;
+//
 
     // king captures normal chips it double the score
     // Determine if a King captured a normal chip
-    const isKing = chip.classList.contains("king");
-    const capturedIsKing = capturedChip?.classList.contains("king");
-    const isKingBonus = isKing && !capturedIsKing;
+    
+    const capturingIsKing = chip.classList.contains("king");
+    const capturedIsKing = capturedChip && capturedChip.classList && capturedChip.classList.contains("king");
+    const isDoubleScore = capturingIsKing || capturedIsKing;
 
-    const finalResult = isKingBonus ? baseResult * 2 : baseResult;
+    const finalResult = isDoubleScore ? baseResult * 2 : baseResult;
 
     // Update scores
     if (chip.classList.contains("red-chip")) {
@@ -64,7 +61,7 @@ function applyOperation(chip, targetSquare, capturedChipValue, capturedChip){
     const opEl = document.getElementById("last-operation");
     if (opEl) {
         opEl.textContent = `${chipValue} ${operator} ${capturedValue} = ${baseResult}`+
-            (isKingBonus ? ` x2 King Bonus → ${finalResult}` : "");
+            (isDoubleScore ? ` King Bonus x2 → ${finalResult}` : "");
         }
     
 
